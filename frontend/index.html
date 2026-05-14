@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Examination System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: 25px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: #1f2937;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 7px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px 3px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .danger:hover {
+            background: #b91c1c;
+        }
+
+        .success {
+            background: #16a34a;
+        }
+
+        .success:hover {
+            background: #15803d;
+        }
+
+        .gray {
+            background: #4b5563;
+        }
+
+        .gray:hover {
+            background: #374151;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #e0f2fe;
+            color: #075985;
+            font-weight: bold;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .item {
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .question-box {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background: #f9fafb;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .small {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .role-badge {
+            background: #e0f2fe;
+            color: #075985;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-weight: bold;
+        }
+
+        .radio-line {
+            display: block;
+            margin: 8px 0;
+        }
+
+        .radio-line input {
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Online Examination System</h1>
+    <p>FastAPI Frontend</p>
+</header>
+
+<div class="container">
+
+    <div id="messageBox"></div>
+
+    <!-- CONNECTION -->
+    <div class="card">
+        <h2>Backend Connection</h2>
+        <input id="apiBaseInput" value="http://127.0.0.1:8000" placeholder="Backend URL">
+        <button onclick="saveApiBase()">Save URL</button>
+        <button onclick="checkBackend()">Check Backend</button>
+        <p class="small">Default: http://127.0.0.1:8000</p>
+    </div>
+
+    <!-- AUTH SECTION -->
+    <div id="authSection" class="card">
+        <h2>Login</h2>
+
+        <input id="loginUsername" placeholder="Username">
+        <input id="loginPassword" type="password" placeholder="Password">
+        <button class="success" onclick="login()">Login</button>
+
+        <hr>
+
+        <div class="row">
+            <div>
+                <h3>Student Registration</h3>
+                <input id="regUsername" placeholder="Username">
+                <input id="regEmail" placeholder="Email">
+                <input id="regPassword" type="password" placeholder="Password">
+                <button onclick="registerStudent()">Register Student</button>
+            </div>
+
+            <div>
+                <h3>Admin Registration</h3>
+                <input id="adminUsername" placeholder="Admin Username">
+                <input id="adminEmail" placeholder="Admin Email">
+                <input id="adminPassword" type="password" placeholder="Admin Password">
+                <input id="adminSecret" placeholder="Admin Secret">
+                <button onclick="registerAdmin()">Register Admin</button>
+                <p class="small">Enter the admin secret from your backend .env file.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER BAR -->
+    <div id="userBar" class="card hidden">
+        <div class="topbar">
+            <div>
+                <h2 id="welcomeText">Welcome</h2>
+                <span id="roleText" class="role-badge"></span>
+            </div>
+            <button class="danger" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- ADMIN SECTION ONLY -->
+    <div id="adminSection" class="hidden">
+
+        <div class="card">
+            <h2>Admin Dashboard</h2>
+            <button onclick="loadDashboard()">Load Dashboard Stats</button>
+            <button onclick="loadAnalytics()">Load Analytics</button>
+            <button onclick="loadAllResults()">Load All Results</button>
+
+            <input id="adminResultId" type="number" placeholder="Result ID">
+            <button onclick="getResultByIdAdmin()">Get Result by ID</button>
+
+            <hr>
+
+            <h3>Post Student Result</h3>
+            <input id="postStudentId" type="number" placeholder="Student ID">
+            <input id="postExamId" type="number" placeholder="Exam ID">
+            <input id="postScore" type="number" placeholder="Score">
+            <input id="postTotalQuestions" type="number" placeholder="Total Questions">
+            <button class="success" onclick="postStudentResult()">Post / Update Result</button>
+
+            <pre id="adminOutput">Admin data will appear here.</pre>
+        </div>
+
+        <div class="card">
+            <h2>Create Exam</h2>
+            <input id="examTitle" placeholder="Exam Title">
+            <input id="examDuration" type="number" placeholder="Duration in minutes">
+            <button class="success" onclick="createExam()">Create Exam</button>
+        </div>
+
+        <div class="card">
+            <h2>Manage Exams</h2>
+            <button onclick="loadAdminExams()">Refresh Exams</button>
+
+            <input id="singleExamId" type="number" placeholder="Exam ID">
+            <button onclick="getExamById()">Get Exam by ID</button>
+
+            <pre id="examOutput">Exam output will appear here.</pre>
+            <div id="adminExamList"></div>
+        </div>
+
+        <div class="card">
+            <h2>Create Question</h2>
+
+            <select id="questionExamId"></select>
+
+            <textarea id="questionText" placeholder="Question text"></textarea>
+            <input id="optionA" placeholder="Option A">
+            <input id="optionB" placeholder="Option B">
+            <input id="optionC" placeholder="Option C">
+            <input id="optionD" placeholder="Option D">
+
+            <select id="correctOption">
+                <option value="a">Correct Answer: A</option>
+                <option value="b">Correct Answer: B</option>
+                <option value="c">Correct Answer: C</option>
+                <option value="d">Correct Answer: D</option>
+            </select>
+
+            <button class="success" onclick="createQuestion()">Create Question</button>
+        </div>
+
+        <div class="card">
+            <h2>Manage Questions</h2>
+            <button onclick="loadAdminQuestions()">Refresh All Questions</button>
+
+            <input id="singleQuestionId" type="number" placeholder="Question ID">
+            <button onclick="getQuestionById()">Get Question by ID</button>
+
+            <input id="questionsExamId" type="number" placeholder="Exam ID">
+            <button onclick="getQuestionsByExam()">Get Questions by Exam ID</button>
+
+            <pre id="questionOutput">Question output will appear here.</pre>
+            <div id="adminQuestionList"></div>
+        </div>
+
+    </div>
+
+    <!-- STUDENT SECTION ONLY -->
+    <div id="studentSection" class="hidden">
+
+        <div class="card">
+            <h2>Available Exams</h2>
+            <button onclick="loadStudentExams()">Load Exams</button>
+            <div id="studentExamList"></div>
+        </div>
+
+        <div class="card">
+            <h2>Start Exam</h2>
+             <input id="manualExamId" type="number" placeholder="Exam ID">
+            <button class="success" onclick="startManualExam()">Start Exam</button>
+
+            <p id="activeExamText" class="role-badge">No active exam</p>
+
+            <h3>Remaining Time</h3>
+            <p id="timerText" class="role-badge">No timer</p>
+</div>
+
+        <div class="card">
+            <h2>Exam Questions</h2>
+            <button onclick="loadActiveExamQuestions()">Load Active Exam Questions</button>
+            <div id="questionsArea">Start an exam first.</div>
+            <button class="success" onclick="finishExam()">Finish Exam</button>
+        </div>
+
+        <div class="card">
+            <h2>My Results</h2>
+            <button onclick="loadMyResults()">Load My Results</button>
+
+            <input id="studentResultId" type="number" placeholder="Result ID">
+            <button onclick="getResultByIdStudent()">Get Result by ID</button>
+
+            <pre id="myResultsOutput">No results loaded yet.</pre>
+        </div>
+
+        <div class="card">
+            <h2>My Answers</h2>
+            <button onclick="loadMyAnswers()">Load My Answers</button>
+            <pre id="myAnswersOutput">No answers loaded yet.</pre>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let API_BASE = localStorage.getItem("apiBase") || "http://127.0.0.1:8000";
+    let token = localStorage.getItem("token");
+    let currentRole = localStorage.getItem("role");
+    let currentUsername = localStorage.getItem("username");
+    let activeExamId = localStorage.getItem("activeExamId");
+    let activeExamEndTime = localStorage.getItem("activeExamEndTime");
+    let timerInterval = null;
+
+    document.getElementById("apiBaseInput").value = API_BASE;
+
+    function showMessage(message, isError = false) {
+        const box = document.getElementById("messageBox");
+        box.innerHTML = `
+            <div class="message ${isError ? "error" : ""}">
+                ${message}
+            </div>
+        `;
+
+        setTimeout(() => {
+            box.innerHTML = "";
+        }, 4000);
+    }
+
+    function saveApiBase() {
+        API_BASE = document.getElementById("apiBaseInput").value.trim();
+        localStorage.setItem("apiBase", API_BASE);
+        showMessage("Backend URL saved");
+    }
+
+    function decodeToken(jwtToken) {
+        try {
+            const payload = jwtToken.split(".")[1];
+            return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+        } catch {
+            return null;
+        }
+    }
+
+    async function apiRequest(path, method = "GET", body = null, auth = true, form = false) {
+        const headers = {};
+
+        if (auth && token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        let requestBody = null;
+
+        if (body) {
+            if (form) {
+                headers["Content-Type"] = "application/x-www-form-urlencoded";
+                requestBody = body;
+            } else {
+                headers["Content-Type"] = "application/json";
+                requestBody = JSON.stringify(body);
+            }
+        }
+
+        const response = await fetch(API_BASE + path, {
+            method,
+            headers,
+            body: requestBody
+        });
+
+        let data = {};
+        try {
+            data = await response.json();
+        } catch {}
+
+        if (!response.ok) {
+            let msg = "Request failed";
+
+            if (data.detail) {
+                if (Array.isArray(data.detail)) {
+                    msg = data.detail.map(e => e.msg || JSON.stringify(e)).join(", ");
+                } else {
+                    msg = data.detail;
+                }
+            }
+
+            throw new Error(msg);
+        }
+
+        return data;
+    }
+
+    async function checkBackend() {
+        try {
+            const data = await apiRequest("/", "GET", null, false);
+            showMessage(data.message || "Backend is working");
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function registerStudent() {
+        try {
+            const data = await apiRequest("/auth/register", "POST", {
+                username: document.getElementById("regUsername").value.trim(),
+                email: document.getElementById("regEmail").value.trim(),
+                password: document.getElementById("regPassword").value
+            }, false);
+
+            showMessage(data.message || "Student registered successfully");
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function registerAdmin() {
+        try {
+            const data = await apiRequest("/auth/register-admin", "POST", {
+                username: document.getElementById("adminUsername").value.trim(),
+                email: document.getElementById("adminEmail").value.trim(),
+                password: document.getElementById("adminPassword").value,
+                admin_secret: document.getElementById("adminSecret").value
+            }, false);
+
+            showMessage(data.message || "Admin registered successfully");
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function login() {
+        try {
+            const formData = new URLSearchParams();
+            formData.append("username", document.getElementById("loginUsername").value.trim());
+            formData.append("password", document.getElementById("loginPassword").value);
+
+            const data = await apiRequest("/auth/login", "POST", formData, false, true);
+
+            token = data.access_token;
+
+            const decoded = decodeToken(token);
+
+            if (!decoded) {
+                throw new Error("Invalid token received");
+            }
+
+            currentRole = decoded.role;
+            currentUsername = decoded.sub;
+
+            localStorage.setItem("token", token);
+            localStorage.setItem("role", currentRole);
+            localStorage.setItem("username", currentUsername);
+
+            showMessage("Logged in successfully");
+            showCorrectPanel();
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    function logout() {
+        token = null;
+        currentRole = null;
+        currentUsername = null;
+        activeExamId = null;
+        activeExamEndTime = null;
+        stopExamTimer();
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("username");
+        localStorage.removeItem("activeExamId");
+        localStorage.removeItem("activeExamEndTime");
+
+        document.getElementById("authSection").classList.remove("hidden");
+        document.getElementById("userBar").classList.add("hidden");
+        document.getElementById("adminSection").classList.add("hidden");
+        document.getElementById("studentSection").classList.add("hidden");
+
+        showMessage("Logged out");
+    }
+
+    function showCorrectPanel() {
+        if (!token || !currentRole) {
+            document.getElementById("authSection").classList.remove("hidden");
+            document.getElementById("userBar").classList.add("hidden");
+            document.getElementById("adminSection").classList.add("hidden");
+            document.getElementById("studentSection").classList.add("hidden");
+            return;
+        }
+
+        document.getElementById("authSection").classList.add("hidden");
+        document.getElementById("userBar").classList.remove("hidden");
+
+        document.getElementById("welcomeText").innerText = `Welcome, ${currentUsername}`;
+        document.getElementById("roleText").innerText = `Role: ${currentRole}`;
+
+        if (currentRole === "admin") {
+            document.getElementById("adminSection").classList.remove("hidden");
+            document.getElementById("studentSection").classList.add("hidden");
+            loadAdminExams();
+            loadAdminQuestions();
+        } else if (currentRole === "student") {
+            document.getElementById("studentSection").classList.remove("hidden");
+            document.getElementById("adminSection").classList.add("hidden");
+            loadStudentExams();
+            updateActiveExamText();
+            startExamTimer();
+        } else {
+            logout();
+            showMessage("Unknown role in token", true);
+        }
+    }
+
+    function pretty(data) {
+        return JSON.stringify(data, null, 2);
+    }
+
+    function safe(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function safeJs(value) {
+        return String(value)
+            .replace(/\\/g, "\\\\")
+            .replace(/'/g, "\\'")
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, "\\n");
+    }
+
+    // ADMIN: DASHBOARD / RESULTS
+
+    async function loadDashboard() {
+        try {
+            const data = await apiRequest("/dashboard/stats");
+            document.getElementById("adminOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function loadAnalytics() {
+        try {
+            const data = await apiRequest("/results/analytics");
+            document.getElementById("adminOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function loadAllResults() {
+        try {
+            const data = await apiRequest("/results/all");
+            document.getElementById("adminOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function getResultByIdAdmin() {
+        const id = document.getElementById("adminResultId").value;
+
+        try {
+            const data = await apiRequest(`/results/${id}`);
+            document.getElementById("adminOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function postStudentResult() {
+    const studentId = Number(document.getElementById("postStudentId").value);
+    const examId = Number(document.getElementById("postExamId").value);
+    const score = Number(document.getElementById("postScore").value);
+    const totalQuestions = Number(document.getElementById("postTotalQuestions").value);
+
+    if (!studentId || !examId || totalQuestions <= 0 || score < 0) {
+        showMessage("Enter valid student ID, exam ID, score, and total questions", true);
+        return;
+    }
+
+    try {
+        const data = await apiRequest("/results/", "POST", {
+            student_id: studentId,
+            exam_id: examId,
+            score: score,
+            total_questions: totalQuestions
+        });
+
+        showMessage("Result posted successfully");
+        document.getElementById("adminOutput").innerText = pretty(data);
+
+        loadAllResults();
+
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+}
+
+
+    // ADMIN: EXAMS
+
+    async function createExam() {
+        try {
+            const data = await apiRequest("/exams/", "POST", {
+                title: document.getElementById("examTitle").value.trim(),
+                duration_minutes: Number(document.getElementById("examDuration").value)
+            });
+
+            showMessage("Exam created successfully");
+            document.getElementById("examOutput").innerText = pretty(data);
+            loadAdminExams();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function loadAdminExams() {
+        try {
+            const exams = await apiRequest("/exams/");
+            const list = document.getElementById("adminExamList");
+            const select = document.getElementById("questionExamId");
+
+            list.innerHTML = "";
+            select.innerHTML = "";
+
+            if (exams.length === 0) {
+                list.innerHTML = "<p>No exams found.</p>";
+                return;
+            }
+
+            exams.forEach(exam => {
+                list.innerHTML += `
+                    <div class="item">
+                        <b>ID:</b> ${exam.id}<br>
+                        <b>Title:</b> ${safe(exam.title)}<br>
+                        <b>Duration:</b> ${exam.duration_minutes} minutes<br>
+                        <button onclick="getExamByIdDirect(${exam.id})">View</button>
+                        <button onclick="updateExam(${exam.id}, '${safeJs(exam.title)}', ${exam.duration_minutes})">Update</button>
+                        <button class="danger" onclick="deleteExam(${exam.id})">Delete</button>
+                    </div>
+                `;
+
+                select.innerHTML += `
+                    <option value="${exam.id}">
+                        ${exam.id} - ${safe(exam.title)}
+                    </option>
+                `;
+            });
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function getExamById() {
+        const id = document.getElementById("singleExamId").value;
+        getExamByIdDirect(id);
+    }
+
+    async function getExamByIdDirect(id) {
+        try {
+            const data = await apiRequest(`/exams/${id}`);
+            document.getElementById("examOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function updateExam(id, oldTitle, oldDuration) {
+        const title = prompt("New exam title:", oldTitle);
+        const duration = prompt("New duration:", oldDuration);
+
+        if (!title || !duration) {
+            return;
+        }
+
+        try {
+            const data = await apiRequest(`/exams/${id}`, "PUT", {
+                title,
+                duration_minutes: Number(duration)
+            });
+
+            showMessage("Exam updated successfully");
+            document.getElementById("examOutput").innerText = pretty(data);
+            loadAdminExams();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function deleteExam(id) {
+        if (!confirm("Delete this exam?")) {
+            return;
+        }
+
+        try {
+            const data = await apiRequest(`/exams/${id}`, "DELETE");
+            showMessage(data.message || "Exam deleted successfully");
+            loadAdminExams();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // ADMIN: QUESTIONS
+
+    async function createQuestion() {
+        try {
+            const data = await apiRequest("/questions/", "POST", {
+                exam_id: Number(document.getElementById("questionExamId").value),
+                text: document.getElementById("questionText").value.trim(),
+                option_a: document.getElementById("optionA").value.trim(),
+                option_b: document.getElementById("optionB").value.trim(),
+                option_c: document.getElementById("optionC").value.trim(),
+                option_d: document.getElementById("optionD").value.trim(),
+                correct_option: document.getElementById("correctOption").value
+            });
+
+            showMessage("Question created successfully");
+            document.getElementById("questionOutput").innerText = pretty(data);
+            loadAdminQuestions();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function loadAdminQuestions() {
+        try {
+            const questions = await apiRequest("/questions/");
+            const list = document.getElementById("adminQuestionList");
+            list.innerHTML = "";
+
+            if (questions.length === 0) {
+                list.innerHTML = "<p>No questions found.</p>";
+                return;
+            }
+
+            questions.forEach(q => {
+                list.innerHTML += `
+                    <div class="item">
+                        <b>ID:</b> ${q.id}<br>
+                        <b>Exam ID:</b> ${q.exam_id}<br>
+                        <b>Question:</b> ${safe(q.text)}<br>
+                        <b>A:</b> ${safe(q.option_a)}<br>
+                        <b>B:</b> ${safe(q.option_b)}<br>
+                        <b>C:</b> ${safe(q.option_c)}<br>
+                        <b>D:</b> ${safe(q.option_d)}<br>
+                        <b>Correct:</b> ${q.correct_option}<br>
+                        <button onclick="getQuestionByIdDirect(${q.id})">View</button>
+                        <button onclick="updateQuestion(${q.id})">Update</button>
+                        <button class="danger" onclick="deleteQuestion(${q.id})">Delete</button>
+                    </div>
+                `;
+            });
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function getQuestionById() {
+        const id = document.getElementById("singleQuestionId").value;
+        getQuestionByIdDirect(id);
+    }
+
+    async function getQuestionByIdDirect(id) {
+        try {
+            const data = await apiRequest(`/questions/${id}`);
+            document.getElementById("questionOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function getQuestionsByExam() {
+        const id = document.getElementById("questionsExamId").value;
+
+        try {
+            const data = await apiRequest(`/questions/exam/${id}`);
+            document.getElementById("questionOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function updateQuestion(id) {
+        const text = prompt("Question text:");
+        const optionA = prompt("Option A:");
+        const optionB = prompt("Option B:");
+        const optionC = prompt("Option C:");
+        const optionD = prompt("Option D:");
+        const correct = prompt("Correct option: a, b, c, or d:");
+
+        if (!text || !optionA || !optionB || !optionC || !optionD || !correct) {
+            return;
+        }
+
+        try {
+            const data = await apiRequest(`/questions/${id}`, "PUT", {
+                text,
+                option_a: optionA,
+                option_b: optionB,
+                option_c: optionC,
+                option_d: optionD,
+                correct_option: correct.toLowerCase()
+            });
+
+            showMessage("Question updated successfully");
+            document.getElementById("questionOutput").innerText = pretty(data);
+            loadAdminQuestions();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function deleteQuestion(id) {
+        if (!confirm("Delete this question?")) {
+            return;
+        }
+
+        try {
+            const data = await apiRequest(`/questions/${id}`, "DELETE");
+            showMessage(data.message || "Question deleted successfully");
+            loadAdminQuestions();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    // STUDENT
+
+    function updateActiveExamText() {
+        document.getElementById("activeExamText").innerText = activeExamId
+            ? `Active Exam ID: ${activeExamId}`
+            : "No active exam";
+    }
+
+    function parseBackendDate(dateValue) {
+    if (!dateValue) {
+        return null;
+    }
+
+    // Backend sends UTC time without Z sometimes, so we add Z
+    if (!dateValue.endsWith("Z")) {
+        dateValue = dateValue + "Z";
+    }
+
+    return new Date(dateValue);
+}
+
+
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+
+    function stopExamTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+
+    function startExamTimer() {
+        stopExamTimer();
+
+    const timerText = document.getElementById("timerText");
+
+    if (!activeExamEndTime) {
+        timerText.innerText = "No timer";
+        return;
+    }
+
+    const endTime = parseBackendDate(activeExamEndTime);
+
+    timerInterval = setInterval(async function () {
+        const now = new Date();
+        const remaining = endTime - now;
+
+        if (remaining <= 0) {
+            stopExamTimer();
+
+            timerText.innerText = "Time is over";
+            showMessage("Exam time is over. Finishing exam...", true);
+
+            if (activeExamId) {
+                await finishExam();
+            }
+
+            return;
+        }
+
+        timerText.innerText = formatTime(remaining);
+    }, 1000);
+}
+
+
+    async function loadStudentExams() {
+        try {
+            const exams = await apiRequest("/exams/");
+            const list = document.getElementById("studentExamList");
+            list.innerHTML = "";
+
+            if (exams.length === 0) {
+                list.innerHTML = "<p>No exams available.</p>";
+                return;
+            }
+
+            exams.forEach(exam => {
+                list.innerHTML += `
+                    <div class="item">
+                        <b>ID:</b> ${exam.id}<br>
+                        <b>Title:</b> ${safe(exam.title)}<br>
+                        <b>Duration:</b> ${exam.duration_minutes} minutes<br>
+                        <button class="success" onclick="startExam(${exam.id})">Start Exam</button>
+                    </div>
+                `;
+            });
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function startManualExam() {
+        const id = document.getElementById("manualExamId").value;
+        startExam(id);
+    }
+
+    async function startExam(examId) {
+        try {
+            const data = await apiRequest(`/answers/start?exam_id=${examId}`, "POST");
+
+            activeExamId = examId;
+            activeExamEndTime = data.end_time;
+            localStorage.setItem("activeExamId", activeExamId);
+            updateActiveExamText();
+            startExamTimer();
+
+            showMessage("Exam started successfully");
+            document.getElementById("questionsArea").innerHTML = `<pre>${pretty(data)}</pre>`;
+
+            loadActiveExamQuestions();
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function loadActiveExamQuestions() {
+        if (!activeExamId) {
+            showMessage("Start an exam first", true);
+            return;
+        }
+
+        try {
+            const questions = await apiRequest(`/questions/exam/${activeExamId}`);
+            const area = document.getElementById("questionsArea");
+            area.innerHTML = "";
+
+            if (questions.length === 0) {
+                area.innerHTML = "<p>No questions found for this exam.</p>";
+                return;
+            }
+
+            questions.forEach(q => {
+                area.innerHTML += `
+                    <div class="question-box">
+                        <h3>${safe(q.text)}</h3>
+
+                        <label class="radio-line">
+                            <input type="radio" name="q_${q.id}" value="a">
+                            A) ${safe(q.option_a)}
+                        </label>
+
+                        <label class="radio-line">
+                            <input type="radio" name="q_${q.id}" value="b">
+                            B) ${safe(q.option_b)}
+                        </label>
+
+                        <label class="radio-line">
+                            <input type="radio" name="q_${q.id}" value="c">
+                            C) ${safe(q.option_c)}
+                        </label>
+
+                        <label class="radio-line">
+                            <input type="radio" name="q_${q.id}" value="d">
+                            D) ${safe(q.option_d)}
+                        </label>
+
+                        <button onclick="submitAnswer(${q.id})">Submit Answer</button>
+                    </div>
+                `;
+            });
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function submitAnswer(questionId) {
+        const selected = document.querySelector(`input[name="q_${questionId}"]:checked`);
+
+        if (!selected) {
+            showMessage("Select an answer first", true);
+            return;
+        }
+
+        try {
+            const data = await apiRequest("/answers/", "POST", {
+                exam_id: Number(activeExamId),
+                question_id: questionId,
+                selected_option: selected.value
+            });
+
+            showMessage(`Answer submitted. Correct: ${data.correct}`);
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function finishExam() {
+        if (!activeExamId) {
+            showMessage("No active exam", true);
+            return;
+        }
+
+        try {
+            const data = await apiRequest(`/answers/finish/${activeExamId}`, "POST");
+
+            showMessage(data.message || "Exam finished");
+
+            activeExamId = null;
+            localStorage.removeItem("activeExamId");
+            updateActiveExamText();
+
+            document.getElementById("questionsArea").innerHTML = "Exam finished.";
+            loadMyResults();
+
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function loadMyResults() {
+        try {
+            const data = await apiRequest("/results/my");
+            document.getElementById("myResultsOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function getResultByIdStudent() {
+        const id = document.getElementById("studentResultId").value;
+
+        try {
+            const data = await apiRequest(`/results/${id}`);
+            document.getElementById("myResultsOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    async function loadMyAnswers() {
+        try {
+            const data = await apiRequest("/answers/my");
+            document.getElementById("myAnswersOutput").innerText = pretty(data);
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+    showCorrectPanel();
+</script>
+
+</body>
+</html>
